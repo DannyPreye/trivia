@@ -14,13 +14,23 @@ class QuestionView extends Component {
       categories: {},
       currentCategory: null,
     };
+
   }
 
-  componentDidMount() {
-    this.getQuestions();
-  }
+
 
   getQuestions = () => {
+    fetch(`/questions?page=${this.state.page}`).then(res => res.json()).then(data => {
+      console.log(data.categories)
+      this.setState({
+        questions: data.questions,
+        totalQuestions: data.total_questions,
+        categories: data.categories,
+        currentCategory: data.current_category,
+      });
+
+    })
+
     $.ajax({
       url: `/questions?page=${this.state.page}`, //TODO: update request URL
       type: 'GET',
@@ -33,12 +43,20 @@ class QuestionView extends Component {
         });
         return;
       },
+
       error: (error) => {
         alert('Unable to load questions. Please try your request again');
         return;
       },
     });
+
   };
+
+  componentDidMount() {
+    this.getQuestions();
+  }
+
+
 
   selectPage(num) {
     this.setState({ page: num }, () => this.getQuestions());
@@ -84,7 +102,7 @@ class QuestionView extends Component {
 
   submitSearch = (searchTerm) => {
     $.ajax({
-      url: `/questions`, //TODO: update request URL
+      url: `/questions/`, //TODO: update request URL
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
@@ -167,6 +185,7 @@ class QuestionView extends Component {
               difficulty={q.difficulty}
               questionAction={this.questionAction(q.id)}
             />
+
           ))}
           <div className='pagination-menu'>{this.createPagination()}</div>
         </div>
