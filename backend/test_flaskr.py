@@ -1,6 +1,7 @@
 import os
 import unittest
 import json
+from urllib import response
 from flask_sqlalchemy import SQLAlchemy
 
 from flaskr import create_app
@@ -34,6 +35,30 @@ class TriviaTestCase(unittest.TestCase):
     TODO
     Write at least one test for each test for successful operation and for expected errors.
     """
+
+    def test_get_category(self):
+        response = self.client().get("/categories")
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['categories'])
+
+    def test_get_question_cat(self):
+        response = self.client().get("/questions")
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_questions'])
+
+    def test_search_question(self):
+        response = self.client().post(
+            '/questions/', json={"searchTerm": "what"})
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
 
 
 # Make the tests conveniently executable

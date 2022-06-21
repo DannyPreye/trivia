@@ -68,7 +68,7 @@ def create_app(test_config=None):
             selection[cat.id] = cat.type
 
         return jsonify({
-            "Success": True,
+            "success": True,
             "categories": selection,
             "total": len(categories)
 
@@ -100,7 +100,7 @@ def create_app(test_config=None):
             selection[cat.id] = cat.type
 
         return jsonify({
-            "Success": True,
+            "success": True,
             "questions": paginated_quest,
             "categories": selection,
             "current_category": current_category,
@@ -139,7 +139,7 @@ def create_app(test_config=None):
     the form will clear and the question will appear at the end of the last page
     of the questions list in the "List" tab.
     """
-    @app.route("/questions/", methods=['POST'])
+    @app.route("/questions", methods=['POST'])
     def create_question():
         body = request.get_json()
 
@@ -162,7 +162,7 @@ def create_app(test_config=None):
                 question = Question.query.order_by(Question.id).filter(
                     Question.question.ilike("%{}%".format(search_term)))
                 paginate_question = pagination(request, question)
-                print("this is the search ", search_term)
+
                 return jsonify(
                     {
                         "success": True,
@@ -170,8 +170,6 @@ def create_app(test_config=None):
                         "questions": paginate_question,
                         "total_books": len(paginate_question),
                         "categories": selection
-
-
                     }
                 )
 
@@ -188,7 +186,7 @@ def create_app(test_config=None):
                 paginated_quest = pagination(request, questions)
 
             return jsonify({
-                "Success": True,
+                "success": True,
                 "questions": [paginated_quest],
                 "total": len(paginated_quest),
                 "status": 200
