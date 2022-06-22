@@ -179,7 +179,7 @@ class QuizView extends Component {
       <div className='quiz-play-holder'>
         <div className='quiz-question'>
           {this.state.currentQuestion.question}
-          {console.log(this.state)}
+     
         </div>
         <form onSubmit={this.submitGuess}>
           <input type='text' name='guess' onChange={this.handleChange} />
