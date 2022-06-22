@@ -1,6 +1,7 @@
 # from crypt import methods (this is throwing an error that is not supported on windows)
 from asyncio.windows_events import NULL
-import os
+
+from os import environ
 from tkinter.messagebox import QUESTION
 from unicodedata import category
 from urllib import response
@@ -17,8 +18,9 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
-
 #  HANDLE PAGINATION
+
+
 def pagination(request, selection):
     page = request.args.get("page", 1, type=int)
     start = (page-1) * QUESTIONS_PER_PAGE
@@ -124,6 +126,7 @@ def create_app(test_config=None):
                 return jsonify({
                     "status": 200,
                     "success": True,
+                    "deleted_question": id
                 })
             else:
                 abort(404)
@@ -204,22 +207,6 @@ def create_app(test_config=None):
     only question that include that string within their question.
     Try using the word "title" to start.
     """
-    # @app.route("/questions", methods=['POST'])
-    # def search_question():
-    #     search_term = request.get_json.get("searchTerm", None)
-    #     print("this is the search trem", search_term)
-    #     query_result = Question.query.order_by(Question.id).filter(
-    #         Question.question.ilike(f"{search_term}"))
-    #     get_related_search = pagination(request, query_result)
-
-    #     return jsonify(
-    #         {
-    #             "success": True,
-    #             "questions": get_related_search,
-    #             "total_books": len(query_result.all())
-
-    #         }
-    #     )
 
     """
     @TODO:
