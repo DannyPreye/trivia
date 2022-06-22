@@ -1,6 +1,4 @@
 # from crypt import methods (this is throwing an error that is not supported on windows)
-from asyncio.windows_events import NULL
-
 from os import environ
 from tkinter.messagebox import QUESTION
 from unicodedata import category
@@ -121,15 +119,16 @@ def create_app(test_config=None):
     def delete_ques(id):
         try:
             question = Question.query.filter(Question.id == id).one_or_none()
-            if question is not NULL:
+            if question is null:
+                abort(404)
+            else:
+
                 question.delete()
                 return jsonify({
                     "status": 200,
                     "success": True,
                     "deleted_question": id
                 })
-            else:
-                abort(404)
         except:
             abort(422)
     """
@@ -247,21 +246,31 @@ def create_app(test_config=None):
 
         previousQuestion = body.get('previous_questions')
         category = body.get('quiz_category')
+        previous = Question.id.in_(previousQuestion)
+        print("Previous question", previous)
 
         if category['id'] == 0:
             current_question = Question.query.filter(
-                Question.question != previousQuestion).order_by(func.random()).first()
+            ).order_by(func.random()).limit(1).all()
+            print("current question", current_question)
         else:
             current_question = Question.query.filter(
-                Question.category == category['id'] and Question.question != previousQuestion).order_by(func.random()).first()
+                Question.category == category['id'] and ~Question.id.in_(previousQuestion)).order_by(func.random()).limit(1).all()
+        questin = {}
+        for ques in current_question:
+            questin = ques
 
         if not current_question:
-            abort(400)
+            return jsonify({
+                "status": 200,
+                "success": True,
+                "question": "no question available",
+            })
 
         return jsonify({
             "status": 200,
             "success": True,
-            "question":  current_question.format()
+            "question":  questin.format()
         })
 
     """
