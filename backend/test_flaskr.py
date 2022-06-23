@@ -108,12 +108,20 @@ class TriviaTestCase(unittest.TestCase):
         # this will return empty question
         self.assertFalse(data['total_questions'])
 
-    def test_delete_question(self):
+    def test_delet_wrong_question(self):
         response = self.client().delete("/questions/200")
         data = json.loads(response.data)
 
         self.assertEqual(response.status_code, 422)
         self.assertEqual(data['success'], False)
+
+    # Note: this test will only pass once
+    def test_delete_question(self):
+        response = self.client().delete("/questions/5")
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
 
 
 # Make the tests conveniently executable

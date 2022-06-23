@@ -19,16 +19,6 @@ QUESTIONS_PER_PAGE = 10
 #  HANDLE PAGINATION
 
 
-def pagination(request, selection):
-    page = request.args.get("page", 1, type=int)
-    start = (page-1) * QUESTIONS_PER_PAGE
-    end = start + QUESTIONS_PER_PAGE
-    questions = [question.format() for question in selection]
-    current_question = questions[start:end]
-
-    return current_question
-
-
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
@@ -88,8 +78,13 @@ def create_app(test_config=None):
     """
     @app.route("/questions")
     def get_all_quetions():
-        questions = Question.query.order_by(Question.id).all()
-        paginated_quest = pagination(request, questions)
+
+        page = request.args.get("page", 1, type=int)
+
+        questions = Question.query.order_by(Question.id).limit(
+            QUESTIONS_PER_PAGE).offset((page-1)*QUESTIONS_PER_PAGE).all()
+        paginated_quest = [ques.format() for ques in questions]
+
         categories = Category.query.all()
         selection = {}
         current_category = categories[0].format()['id']
@@ -143,8 +138,8 @@ def create_app(test_config=None):
     """
     @app.route("/questions", methods=['POST'])
     def create_question():
+        page = request.args.get("page", 1, type=int)
         body = request.get_json()
-
         search_term = body.get('searchTerm')
         question = body.get("question")
         answer = body.get("answer")
@@ -161,10 +156,11 @@ def create_app(test_config=None):
 
             if search_term:
 
-                question = Question.query.order_by(Question.id).filter(
-                    Question.question.ilike("%{}%".format(search_term)))
+                questions = Question.query.order_by(Question.id).filter(
+                    Question.question.ilike("%{}%".format(search_term))).limit(
+                    QUESTIONS_PER_PAGE).offset((page-1)*QUESTIONS_PER_PAGE).all()
 
-                paginate_question = pagination(request, question)
+                paginate_question = [ques.format() for ques in questions]
 
                 return jsonify(
                     {
@@ -185,8 +181,9 @@ def create_app(test_config=None):
                 )
                 question.insert()
 
-                questions = Question.query.all()
-                paginated_quest = pagination(request, questions)
+                questions = Question.query.order_by(Question.id).limit(
+                    QUESTIONS_PER_PAGE).offset((page-1)*QUESTIONS_PER_PAGE).all()
+                paginated_quest = [ques.format() for ques in questions]
 
             return jsonify({
                 "success": True,
