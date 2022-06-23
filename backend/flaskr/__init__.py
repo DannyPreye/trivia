@@ -163,7 +163,7 @@ def create_app(test_config=None):
 
                 question = Question.query.order_by(Question.id).filter(
                     Question.question.ilike("%{}%".format(search_term)))
-                
+
                 paginate_question = pagination(request, question)
 
                 return jsonify(
@@ -247,8 +247,6 @@ def create_app(test_config=None):
 
         previousQuestion = body.get('previous_questions')
         category = body.get('quiz_category')
-        previous = Question.id.in_(previousQuestion)
-        print("Previous question", previous)
 
         if category['id'] == 0:
             current_question = Question.query.filter(
