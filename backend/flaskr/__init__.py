@@ -1,5 +1,6 @@
 # from crypt import methods (this is throwing an error that is not supported on windows)
 from os import environ
+from tabnanny import check
 from tkinter.messagebox import QUESTION
 from unicodedata import category
 from urllib import response
@@ -242,31 +243,29 @@ def create_app(test_config=None):
 
         body = request.get_json()
 
+        category = body.get('quiz_category', None)
         previousQuestion = body.get('previous_questions')
-        category = body.get('quiz_category')
+        print(previousQuestion)
 
         if category['id'] == 0:
-            current_question = Question.query.filter(
-            ).order_by(func.random()).limit(1).all()
-            print("current question", current_question)
+            current_question = Question.query.filter(Question.id.in_(previousQuestion)
+                                                     ).order_by(func.random()).limit(1).scalar()
         else:
             current_question = Question.query.filter(
-                Question.category == category['id'] and ~Question.id.in_(previousQuestion)).order_by(func.random()).limit(1).all()
+                Question.category == category['id'] and (Question.id.in_(previousQuestion))).order_by(func.random()).limit(1).scalar()
         questin = {}
-        for ques in current_question:
-            questin = ques
 
         if not current_question:
             return jsonify({
-                "status": 200,
+                "status": 204,
                 "success": True,
-                "question": "no question available",
+
             })
 
         return jsonify({
             "status": 200,
             "success": True,
-            "question":  questin.format()
+            "question": current_question.format()
         })
 
     """

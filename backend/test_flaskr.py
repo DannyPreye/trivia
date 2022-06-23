@@ -35,6 +35,11 @@ class TriviaTestCase(unittest.TestCase):
         self.search = {"searchTerm": "what"}
         self.search_wrong = {"searchTerm": "589598"}
 
+        self.play_good = {"quiz_category": {
+            "type": "history", "id": "2"}, "previous_questions": []}
+        self.play_bad = {"quiz_category": {
+            "type": "history", "id": "200"}, "previous_questions": []}
+
     def tearDown(self):
         """Executed after reach test"""
         pass
@@ -121,6 +126,29 @@ class TriviaTestCase(unittest.TestCase):
         data = json.loads(response.data)
 
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+
+    def test_insert_question(self):
+        res = self.client().post("/questions", json=self.new_ques)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'], True)
+        self.assertTrue(data['total'])
+
+    def test_play_quiz_success(self):
+        res = self.client().post("/quizzes", json=self.play_good)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['question'])
+
+    def test_play_quiz_failure(self):
+        res = self.client().post("/quizzes", json=self.play_bad)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
 
 
