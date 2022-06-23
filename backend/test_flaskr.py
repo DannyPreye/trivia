@@ -30,6 +30,11 @@ class TriviaTestCase(unittest.TestCase):
         self.new_ques = {"question": "what is my name",
                          "answer": "Daniel", "category": 4, "difficulty": 2}
 
+        self.wrong_ques = {"question": "what is my name",
+                           "answer": "Daniel", "category": 30, "difficulty": 2}
+        self.search = {"searchTerm": "what"}
+        self.search_wrong = {"searchTerm": "589598"}
+
     def tearDown(self):
         """Executed after reach test"""
         pass
@@ -47,6 +52,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['success'], True)
         self.assertTrue(data['categories'])
 
+    def test_failed_get_category(self):
+        response = self.client().get("/categorie")
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], "resource not found")
+
     def test_get_question(self):
         response = self.client().get("/questions")
         data = json.loads(response.data)
@@ -54,13 +67,6 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['success'], True)
         self.assertTrue(data['total_questions'])
-
-    def test_insert(self):
-        res = self.client().post("/questions", json=self.new_ques)
-        data = json.loads(res.data)
-
-        self.assertEqual(res.status_code, 200)
-        self.assertTrue(data['success'], True)
 
     def test_wrong_question_page(self):
         response = self.client().get("/question?page=400")
@@ -70,12 +76,44 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "resource not found")
 
+    def test_insert_question(self):
+        res = self.client().post("/questions", json=self.new_ques)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertTrue(data['success'], True)
+        self.assertTrue(data['total'])
+
+    def test_insert_wrong_question(self):
+        res = self.client().post("/questions", json=self.wrong_ques)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 422)
+        self.assertEqual(data['success'], False)
+
+    def test_search_question(self):
+        res = self.client().post("/questions", json=self.search)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_questions'])
+
+    def test_search_wrong_question(self):
+        res = self.client().post("/questions", json=self.search_wrong)
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        # this will return empty question
+        self.assertFalse(data['total_questions'])
+
     def test_delete_question(self):
         response = self.client().delete("/questions/200")
         data = json.loads(response.data)
 
         self.assertEqual(response.status_code, 422)
-        self.assertTrue(data['success'], False)
+        self.assertEqual(data['success'], False)
 
 
 # Make the tests conveniently executable

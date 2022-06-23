@@ -163,6 +163,7 @@ def create_app(test_config=None):
 
                 question = Question.query.order_by(Question.id).filter(
                     Question.question.ilike("%{}%".format(search_term)))
+                
                 paginate_question = pagination(request, question)
 
                 return jsonify(
@@ -170,7 +171,7 @@ def create_app(test_config=None):
                         "success": True,
                         "status": 200,
                         "questions": paginate_question,
-                        "total_books": len(paginate_question),
+                        "total_questions": len(paginate_question),
                         "categories": selection
                     }
                 )
